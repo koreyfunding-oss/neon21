@@ -1,41 +1,51 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "NEON21",
-  description: "A hyper-responsive AI-driven agent environment built for speed, clarity, and evolution.",
+  description:
+    "A hyper-responsive AI-driven agent environment built for speed, clarity, and evolution.",
   icons: {
     icon: "/favicon.ico",
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <div id="neon-grid-background"></div>
+        <div id="neon-grid-background" />
         <main>{children}</main>
       </body>
     </html>
   );
 }
-// app/app/layout.tsx
+```tsx
 import "./globals.css";
+import type { Metadata } from "next";
 import { ReactNode } from "react";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "NEON21",
-  description: "Next.js project powered by Vercel",
+  description:
+    "A hyper-responsive AI-driven agent environment built for speed, clarity, and evolution.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <div id="neon-grid-background" />
+        <main>{children}</main>
+      </body>
     </html>
   );
 }
+```
+
+That’s it. Clean. Tight. Functional.
+Go ahead and paste it into the editor.
