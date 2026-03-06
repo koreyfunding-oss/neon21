@@ -1,1 +1,38 @@
-'use client'; import { useEffect, useState } from 'react'; import { useRouter } from 'next/navigation'; import { useTrialTimer } from '@/lib/useTrialTimer'; import { supabase } from '@/lib/supabase'; interface SessionGuardProps { trialStartedAt: string | null; } export function SessionGuard({ trialStartedAt }: SessionGuardProps) { const [mounted, setMounted] = useState(false); const { timeRemaining, formatted, isExpired, toast } = useTrialTimer(trialStartedAt); const router = useRouter(); useEffect(() => { setMounted(true); }, []); useEffect(() => { if (isExpired) { router.push('/trial-expired'); } }, [isExpired, router]); if (!mounted) return null; return ( <> <div className="fixed top-0 right-0 z-40 p-4 text-neon-cyan font-orbitron"> <div className="text-sm">TRIAL TIME REMAINING</div> <div className={`text-2xl font-bold ${timeRemaining < 300000 ? 'neon-magenta' : 'neon-text'}`}> {formatted} </div> <div className="h-1 w-32 bg-gray-700 mt-2 rounded-full overflow-hidden"> <div className="h-full bg-neon-cyan transition-all" style={{ width: `${(timeRemaining / 3600000) * 100}%` }}></div> </div> </div> {toast && ( <div className={`fixed top-20 right-4 z-50 p-4 rounded border-2 ${ toast.type === 'warning' ? 'border-neon-amber bg-amber-900/20' : 'border-neon-magenta bg-magenta-900/20' }`}> <div className={toast.type === 'warning' ? 'text-neon-amber' : 'text-neon-magenta'}> {toast.message} </div> </div> )} {isExpired && ( <div className="fixed inset-0 bg-void/90 z-50 flex items-center justify-center"> <div className="text-center"> <div className="font-orbitron text-4xl neon-magenta mb-4">SESSION EXPIRED</div> <div className="text-neon-cyan">Redirecting to subscription page...</div> </div> </div> )} </> );
+import React, { useEffect, useState } from 'react';
+
+const SessionGuard = ({ trialDuration, onExpire }) => {
+    const [timeLeft, setTimeLeft] = useState(trialDuration);
+    const [isExpired, setIsExpired] = useState(false);
+
+    useEffect(() => {
+        if (timeLeft <= 0) {
+            setIsExpired(true);
+            onExpire();
+            return;
+        }
+        const timer = setInterval(() => {
+            setTimeLeft(prev => prev - 1);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [timeLeft, onExpire]);
+
+    useEffect(() => {
+        if (timeLeft === 300) {
+            alert('Warning: 5 minutes remaining!');
+        } else if (timeLeft === 120) {
+            alert('Warning: 2 minutes remaining!');
+        }
+    }, [timeLeft]);
+
+    if (isExpired) {
+        return <div style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', height: '100%', width: '100%', position: 'fixed', top: 0, left: 0, zIndex: 1000 }}>
+            <h1 style={{ color: 'white' }}>Trial Expired</h1>
+        </div>;
+    }
+
+    return <div>
+        <h2>Time Left: {timeLeft} seconds</h2>
+    </div>;
+};
+
+export default SessionGuard;
