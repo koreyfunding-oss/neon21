@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Orbitron, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import SessionGuard from '@/components/SessionGuard';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -23,7 +24,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${orbitron.variable} ${jetbrainsMono.variable}`}>
-      <body className="bg-void text-neon-cyan antialiased">{children}</body>
+      <body className="bg-void text-neon-cyan antialiased">
+        <SessionGuard>{children}</SessionGuard>
+      </body>
     </html>
   );
 }

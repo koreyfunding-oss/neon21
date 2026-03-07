@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+claud-neon/node_modules
 /.pnp
 .pnp.*
 .yarn/*
