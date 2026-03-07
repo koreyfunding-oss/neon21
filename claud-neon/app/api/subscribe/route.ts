@@ -38,16 +38,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', userId)
-      .single();
-
-    if (profileError || !profile) {
-      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
-    }
-
     const { error: updateError } = await supabase
       .from('profiles')
       .update({

@@ -86,7 +86,7 @@ export default function SessionGuard({ children }: SessionGuardProps) {
 
       {/* Toast notification */}
       {toast && (
-        <div className={`toast toast-${toast.type === 'error' ? 'error' : 'warning'}`}>
+        <div className={`toast toast-${toast.type}`}>
           {toast.message}
         </div>
       )}
