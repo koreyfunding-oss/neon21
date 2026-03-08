@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
     const trialStartTime = new Date(profile.trial_started_at).getTime();
     const trialExpired = (now - trialStartTime) > 3600000;
 
-    if (profile.subscription_status === 'trial' && trialExpired && !profile.subscription_status === 'active') {
+    if (profile.subscription_status === 'trial' && trialExpired) {
         return NextResponse.redirect(new URL('/trial-expired', request.url));
     }
 
