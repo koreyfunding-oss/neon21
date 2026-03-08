@@ -1,0 +1,39 @@
+{
+  "app": {
+    "name": "NEON21",
+    "version": "1.0.0",
+    "description": "CIS Intelligence System — AI-powered blackjack decision support",
+    "author": "Syndicate Supremacy"
+  },
+  "engine": {
+    "defaultDecks": 6,
+    "defaultSystem": "hi-lo",
+    "supportedSystems": ["hi-lo", "ko", "hi-opt-ii"],
+    "trueCountPrecision": 2,
+    "penetrationTarget": 0.75,
+    "maxShoeHistory": 500
+  },
+  "betting": {
+    "defaultMinBet": 25,
+    "defaultMaxBet": 500,
+    "defaultBankroll": 1000,
+    "kellyFraction": 0.25,
+    "defaultStdDev": 1.15
+  },
+  "trial": {
+    "durationMs": 3600000,
+    "warningAt5MinMs": 300000,
+    "warningAt2MinMs": 120000
+  },
+  "api": {
+    "port": 3001,
+    "rateLimit": {
+      "maxRequests": 60,
+      "windowMs": 60000
+    }
+  },
+  "session": {
+    "maxAgeMs": 14400000,
+    "cleanupIntervalMs": 1800000
+  }
+}
