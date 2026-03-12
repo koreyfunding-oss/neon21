@@ -1,24 +1,44 @@
-// middleware.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase';
 
-import { NextFunction, Request, Response } from 'express';
+const TRIAL_DURATION_MS = 60 * 60 * 1000; // 1 hour — matches useTrialTimer.ts
+const protectedRoutes = ['/dashboard', '/game', '/engine'];
 
-// Middleware to enforce a 1-hour trial period with subscription requirement
-export function trialMiddleware(req: Request, res: Response, next: NextFunction) {
-    const trialStartedAt = req.user?.trial_started_at; // Assuming the timestamp is stored in the user object
-    const currentTime = new Date().getTime();
+export async function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
 
-    if (trialStartedAt) {
-        const trialExpiry = new Date(trialStartedAt).
-            setHours(new Date(trialStartedAt).getHours() + 1);
+    if (!protectedRoutes.some(route => pathname.startsWith(route))) {
+        return NextResponse.next();
+    }
 
-        // Check if the trial has expired
-        if (currentTime > trialExpiry) {
-            // Check if the user has an active subscription
-            if (!req.user?.subscription_active) {
-                return res.status(403).send('Trial has expired and no active subscription.');
-            }
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+        return NextResponse.redirect(new URL('/auth', request.url));
+    }
+
+    const { data: profile } = await supabase.from('profiles').select('subscription_status,trial_started_at').eq('id', session.user.id).single();
+
+    if (!profile) {
+        return NextResponse.redirect(new URL('/auth', request.url));
+    }
+
+    if (profile.subscription_status === 'active') {
+        return NextResponse.next();
+    }
+
+    if (profile.subscription_status === 'trial') {
+        const trialStartTime = new Date(profile.trial_started_at).getTime();
+        const trialExpired = (Date.now() - trialStartTime) > TRIAL_DURATION_MS;
+        if (trialExpired) {
+            return NextResponse.redirect(new URL('/trial-expired', request.url));
         }
     }
 
-    next(); // Proceed to the next middleware / route handler
+    return NextResponse.next();
 }
+
+export const config = {
+    matcher: ['/dashboard/:path*', '/game/:path*', '/engine/:path*']
+};

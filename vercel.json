@@ -1,1 +1,13 @@
-{\n  "build": {\n    "env": {\n      "NEXT_PUBLIC_API_URL": "<API_URL>",\n      "NEXT_PUBLIC_ANOTHER_ENV_VAR": "<ENV_VALUE>"\n    },\n    "outputDirectory": "out",\n    "ignoreDefaultBuildCommand": true\n  },\n  "env": {\n    "NODE_ENV": "production",\n    "ANOTHER_ENV_VAR": "<VALUE>"\n  },\n  "routes": [\n    {\n      "src": "/(.*)",\n      "dest": "/$1",\n      "headers": {\n        "Cache-Control": "max-age=0"\n      }\n    }\n  ]\n}
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "outputDirectory": ".next",
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@next_public_supabase_url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@next_public_supabase_anon_key",
+    "SQUARE_ACCESS_TOKEN": "@square_access_token",
+    "SQUARE_LOCATION_ID": "@square_location_id",
+    "SQUARE_PLAN_VARIATION_ID": "@square_plan_variation_id",
+    "SQUARE_ENV": "@square_env"
+  }
+}

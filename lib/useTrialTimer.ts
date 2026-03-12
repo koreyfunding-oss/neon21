@@ -3,22 +3,20 @@ import { useState, useEffect, useCallback } from 'react';
 
 const TRIAL_DURATION_MS = 60 * 60 * 1000; // 1 hour
 
-export function useSessionManager(trialStartedAt: string | null, subscriptionStatus: string = 'trial') {
+export function useTrialTimer(trialStartedAt: string | null) {
   const [timeRemaining, setTimeRemaining] = useState<number>(TRIAL_DURATION_MS);
   const [isExpired, setIsExpired] = useState(false);
   const [warned5, setWarned5] = useState(false);
   const [warned2, setWarned2] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'warning' | 'error' } | null>(null);
-  const [showPaywall, setShowPaywall] = useState(false);
 
   const showToast = useCallback((message: string, type: 'warning' | 'error') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 6000);
   }, []);
 
-  // Timer effect
   useEffect(() => {
-    if (!trialStartedAt || subscriptionStatus === 'active') return;
+    if (!trialStartedAt) return;
 
     const tick = () => {
       const elapsed = Date.now() - new Date(trialStartedAt).getTime();
@@ -39,21 +37,13 @@ export function useSessionManager(trialStartedAt: string | null, subscriptionSta
 
       if (remaining === 0) {
         setIsExpired(true);
-        showToast('⏰ TRIAL EXPIRED — Please subscribe', 'error');
       }
     };
 
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [trialStartedAt, warned5, warned2, showToast, subscriptionStatus]);
-
-  // Paywall visibility effect
-  useEffect(() => {
-    if (isExpired && subscriptionStatus === 'trial') {
-      setShowPaywall(true);
-    }
-  }, [isExpired, subscriptionStatus]);
+  }, [trialStartedAt, warned5, warned2, showToast]);
 
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -64,7 +54,6 @@ export function useSessionManager(trialStartedAt: string | null, subscriptionSta
   };
 
   const percentRemaining = timeRemaining / TRIAL_DURATION_MS;
-  const status = percentRemaining > 0.08 ? 'ok' : percentRemaining > 0.03 ? 'warning' : 'critical';
 
   return {
     timeRemaining,
@@ -72,8 +61,6 @@ export function useSessionManager(trialStartedAt: string | null, subscriptionSta
     percentRemaining,
     isExpired,
     toast,
-    status,
-    showPaywall,
-    subscriptionStatus,
+    status: percentRemaining > 0.08 ? 'ok' : percentRemaining > 0.03 ? 'warning' : 'critical'
   };
 }
