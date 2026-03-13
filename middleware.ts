@@ -1,24 +1,52 @@
-// middleware.ts
+import { NextRequest, NextResponse } from "next/server";
 
-import { NextFunction, Request, Response } from 'express';
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-// Middleware to enforce a 1-hour trial period with subscription requirement
-export function trialMiddleware(req: Request, res: Response, next: NextFunction) {
-    const trialStartedAt = req.user?.trial_started_at; // Assuming the timestamp is stored in the user object
-    const currentTime = new Date().getTime();
+  // Skip public/static/internal routes
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api/public") ||
+    pathname.startsWith("/favicon.ico") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/subscribe") ||
+    pathname.startsWith("/success") ||
+    pathname.startsWith("/cancel")
+  ) {
+    return NextResponse.next();
+  }
 
-    if (trialStartedAt) {
-        const trialExpiry = new Date(trialStartedAt).
-            setHours(new Date(trialStartedAt).getHours() + 1);
+  // Example values pulled from cookies
+  const trialStartedAt = req.cookies.get("trial_started_at")?.value;
+  const subscriptionActive = req.cookies.get("subscription_active")?.value === "true";
 
-        // Check if the trial has expired
-        if (currentTime > trialExpiry) {
-            // Check if the user has an active subscription
-            if (!req.user?.subscription_active) {
-                return res.status(403).send('Trial has expired and no active subscription.');
-            }
-        }
+  if (trialStartedAt) {
+    const started = new Date(trialStartedAt).getTime();
+
+    if (!Number.isNaN(started)) {
+      const oneHourMs = 60 * 60 * 1000;
+      const expired = Date.now() > started + oneHourMs;
+
+      if (expired && !subscriptionActive) {
+        const url = req.nextUrl.clone();
+        url.pathname = "/subscribe";
+        url.searchParams.set("reason", "trial_expired");
+        return NextResponse.redirect(url);
+      }
     }
+  }
 
-    next(); // Proceed to the next middleware / route handler
+  return NextResponse.next();
 }
+
+export const config = {
+  matcher: [
+    /*
+      Protect app routes, but leave public pages alone.
+      Adjust this to your actual protected routes.
+    */
+    "/dashboard/:path*",
+    "/play/:path*",
+    "/app/:path*",
+  ],
+};
