@@ -1,1 +1,3 @@
-{\n  "build": {\n    "env": {\n      "NEXT_PUBLIC_API_URL": "<API_URL>",\n      "NEXT_PUBLIC_ANOTHER_ENV_VAR": "<ENV_VALUE>"\n    },\n    "outputDirectory": "out",\n    "ignoreDefaultBuildCommand": true\n  },\n  "env": {\n    "NODE_ENV": "production",\n    "ANOTHER_ENV_VAR": "<VALUE>"\n  },\n  "routes": [\n    {\n      "src": "/(.*)",\n      "dest": "/$1",\n      "headers": {\n        "Cache-Control": "max-age=0"\n      }\n    }\n  ]\n}
+{
+  "framework": "nextjs"
+}
