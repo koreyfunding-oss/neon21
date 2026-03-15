@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NEON21 — CIS Intelligence System
 
-## Getting Started
+> AI-powered blackjack decision support by Syndicate Supremacy
 
-First, run the development server:
+## Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Frontend | Next.js 15, React 19, Tailwind CSS 4 |
+| Animations | Framer Motion |
+| Database / Auth | Supabase |
+| Payments | Square |
+| Card OCR | Tesseract.js |
+| Voice Control | Web Speech API |
+| State | Zustand |
+| Deployment | Vercel |
+
+## Features
+
+- **Card Counting Systems**: Hi-Lo, KO (Knockout), Hi-Opt II
+- **Deck Configurations**: 2, 6, or 8 decks
+- **True Count Conversion** with Illustrious 18 index play deviations
+- **Kelly Criterion Bet Sizing** with adjustable fraction
+- **Basic Strategy Engine** — hard, soft, and pair decisions
+- **Pattern Detection** — dealer bias, shuffle tracking, hot/cold streaks
+- **Voice Commands** — speak card names or actions
+- **Camera Card Scan** — Tesseract.js OCR (2-second polling)
+- **Monetization** — 1-hour free trial, then $9.99/month via Square
+
+## Quick Start
 
 ```bash
+npm install
+cp .env.example .env.local    # fill in your credentials
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env.local` file with the following values:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
-## Learn More
+# Square Payments
+SQUARE_ACCESS_TOKEN=your-access-token
+SQUARE_LOCATION_ID=your-location-id
+SQUARE_PLAN_VARIATION_ID=your-plan-variation-id
+SQUARE_PREMIUM_PLAN_VARIATION_ID=your-premium-plan-variation-id  # optional
+SQUARE_ENV=sandbox   # or "production"
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Supabase Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Run the SQL schema from `config/schema.sql` in your Supabase SQL editor to create
+the `profiles` table with Row Level Security and auto-triggers.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploying to Vercel
 
-## Deploy on Vercel
+1. Push to GitHub
+2. Import the repo in [Vercel](https://vercel.com/new)
+3. Add environment variables in Vercel project settings (see above)
+4. Deploy — Vercel automatically detects Next.js
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The `vercel.json` at root pre-configures the build command and output directory.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Routes
+
+All engine routes are serverless-compatible (no Express required):
+
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/engine/count` | POST | Add card(s) to running count |
+| `/api/engine/count` | DELETE | Undo last card |
+| `/api/engine/reset` | POST | Reset shoe (new shuffle) |
+| `/api/engine/predict` | POST | Get basic strategy + count-adjusted recommendation |
+| `/api/square` | POST | Process Square subscription payment |
+| `/api/subscribe` | POST | Subscribe to a plan (basic or premium) |
+
+## Security
+
+- Helmet.js security headers via `next.config.ts`
+- Supabase Row Level Security (users see only their own data)
+- Payment processing server-side only — tokens never exposed to frontend
+- Auth middleware protects `/dashboard`, `/game`, `/engine` routes
+
+## Architecture Note
+
+The engine runs entirely as Next.js serverless API routes — no separate Express server needed.
+Session state is maintained in-memory per serverless instance. For multi-instance production
+deployments, consider migrating session state to Supabase or Redis.
