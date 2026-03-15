@@ -91,3 +91,5 @@ All engine routes are serverless-compatible (no Express required):
 The engine runs entirely as Next.js serverless API routes — no separate Express server needed.
 Session state is maintained in-memory per serverless instance. For multi-instance production
 deployments, consider migrating session state to Supabase or Redis.
+
+<!-- deploy trigger -->
